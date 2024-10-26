@@ -2,6 +2,6 @@
 {
     public interface IPrinter
     {
-        public abstract void Print(Receipt receipt);
+        public abstract Task PrintAsync(Receipt receipt);
     }
 }

@@ -2,33 +2,40 @@
 {
     public class LinuxPrinter : IPrinter
     {
+        private ILogger logger;
+
         private string workingDirectory;
         private string? _printerName = null;
 
-        public LinuxPrinter()
+        public LinuxPrinter(ILogger logger)
         {
             workingDirectory = Environment.CurrentDirectory;
+            this.logger = logger;
         }
 
-        public void Print(Receipt receipt)
+        public async Task PrintAsync(Receipt receipt)
         {
-            string printerName = GetPrinterName();
+            logger.LogInformation("Will print");
+
+            string printerName = await GetPrinterNameAsync();
 
             receipt.GenerateTxtFile();
 
             Command printCommand = new Command($"lp -d {printerName} {receipt.FileName}.txt", workingDirectory);
 
-            printCommand.RunAsync().Wait();
+            await printCommand.RunAsync();
 
             receipt.RemoveTextFile();
         }
 
-        private string GetPrinterName()
+        private async Task<string> GetPrinterNameAsync()
         {
             if (_printerName == null)
             {
+                logger.LogInformation("Starting command for printer name in: " + workingDirectory);
                 Command getNameCommand = new Command("lpstat -d", workingDirectory);
-                _printerName = getNameCommand.RunAsync().Result;
+                _printerName = await getNameCommand.RunAsync();
+                logger.LogInformation(_printerName);
             }
 
             return _printerName;

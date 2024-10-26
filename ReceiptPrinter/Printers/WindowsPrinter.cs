@@ -2,8 +2,16 @@
 {
     public class WindowsPrinter : IPrinter
     {
-        public void Print(Receipt receipt)
+        private ILogger logger;
+
+        public WindowsPrinter(ILogger logger)
         {
+            this.logger = logger;
+        }
+
+        public async Task PrintAsync(Receipt receipt)
+        {
+            await Task.CompletedTask;
             receipt.GeneratePdf();
         }
     }

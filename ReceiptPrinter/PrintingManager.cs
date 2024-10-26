@@ -6,15 +6,18 @@ namespace ReceiptPrinter
     public class PrintingManager
     {
         private readonly IPrinter printer;
+        private readonly ILogger logger;
 
         private List<string> printedDocuments = new List<string>();
 
-        public PrintingManager()
+        public PrintingManager(ILogger logger)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                printer = new LinuxPrinter();
+                printer = new LinuxPrinter(logger);
             else
                 printer = new WindowsPrinter();
+
+            this.logger = logger;
         }
 
         public void Print(Receipt receipt)
