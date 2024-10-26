@@ -78,11 +78,6 @@ namespace ReceiptPrinter
                     }
                 }
 
-                for (int i = 0; i < 10; i++)
-                {
-                    stringBuilder.AppendLine("TestLine");
-                }
-
                 stringBuilder.AppendLine("Have a nice day! :)");
             }
             else
