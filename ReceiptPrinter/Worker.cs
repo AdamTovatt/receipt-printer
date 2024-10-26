@@ -22,18 +22,48 @@ namespace ReceiptPrinter
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!await InitializeAsync())
-                return;
+            bool hasHadAnError = false;
 
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                foreach (Purchase purchase in await purchaseManager.GetNewPurchasesAsync())
+                bool initialized = await InitializeAsync();
+
+                while (!initialized)
                 {
-                    Receipt receipt = new Receipt(purchase);
-                    await printingManager.PrintAsync(receipt);
+                    await Task.Delay(1000);
+                    initialized = await InitializeAsync();
                 }
 
-                await Task.Delay(refreshDelay, stoppingToken);
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        foreach (Purchase purchase in await purchaseManager.GetNewPurchasesAsync())
+                        {
+                            Receipt receipt = new Receipt(purchase);
+                            await printingManager.PrintAsync(receipt);
+                        }
+
+                        if (hasHadAnError)
+                            await printingManager.PrintAsync(Receipt.CreateReceiptFromText("success-message", "The system is back online"));
+
+                        printingManager.RemovePrints("start-error-info"); // remove error message prints
+                        printingManager.RemovePrints("error-message"); // so they will be printed again if a new error occurrs
+                        printingManager.RemovePrints("success-message");
+                        hasHadAnError = false;
+
+                        await Task.Delay(refreshDelay, stoppingToken);
+                    }
+                    catch (Exception exception)
+                    {
+                        hasHadAnError = true;
+                        await printingManager.PrintAsync(Receipt.CreateReceiptFromText("error-message", $"An error has occurred, the system might be offline: {exception.Message}"));
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                await printingManager.PrintAsync(Receipt.CreateReceiptFromText("fatal-error-message", $"A fatal error has occurred and the system needs to be restarted: {exception.Message}"));
             }
         }
 
@@ -52,7 +82,7 @@ namespace ReceiptPrinter
 
             await printingManager.PrintAsync(CreateStartupReceipt(errorMessage));
 
-            return true;
+            return errorMessage == null;
         }
 
         private Receipt CreateStartupReceipt(string? errorMessage)
@@ -89,7 +119,7 @@ namespace ReceiptPrinter
                 stringBuilder.AppendLine($"Error:\n{errorMessage}");
             }
 
-            return Receipt.CreateReceiptFromText("startup-info", stringBuilder.ToString());
+            return Receipt.CreateReceiptFromText(errorMessage == null ? "startup-info" : "start-error-info", stringBuilder.ToString());
         }
     }
 }

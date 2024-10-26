@@ -37,5 +37,11 @@ namespace ReceiptPrinter
             while (printedDocuments.Count > 200)
                 printedDocuments.RemoveAt(0);
         }
+
+        public void RemovePrints(string name)
+        {
+            if (printedDocuments.Contains(name))
+                printedDocuments.Remove(name);
+        }
     }
 }
