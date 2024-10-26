@@ -19,12 +19,12 @@ namespace ReceiptPrinter
 
         public void Print(Receipt receipt)
         {
-            if (printedDocuments.Contains(receipt.PdfFileName))
+            if (printedDocuments.Contains(receipt.FileName))
                 return;
 
             printer.Print(receipt);
 
-            printedDocuments.Add(receipt.PdfFileName);
+            printedDocuments.Add(receipt.FileName);
 
             CleanDocumentList();
         }

@@ -4,7 +4,7 @@
     {
         public void Print(Receipt receipt)
         {
-            receipt.GeneratePdf(receipt.PdfFileName);
+            receipt.GeneratePdf();
         }
     }
 }

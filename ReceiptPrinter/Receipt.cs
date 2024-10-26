@@ -10,18 +10,18 @@ namespace ReceiptPrinter
         private readonly string _content;
         private const float PageWidthInMillimeters = 48f;
 
-        public string PdfFileName { get; private set; }
+        public string FileName { get; private set; }
 
         private Receipt(string fileName, string content)
         {
             _content = content;
-            PdfFileName = "receipt.pdf";
+            FileName = fileName;
         }
 
         public Receipt(Purchase purchase)
         {
             _content = purchase.ToString();
-            PdfFileName = $"{purchase.PurchaseUuid}.pdf";
+            FileName = purchase.PurchaseUuid;
         }
 
         public static Receipt CreateReceiptFromText(string fileName, string content) => new Receipt(fileName, content);
@@ -32,6 +32,7 @@ namespace ReceiptPrinter
         {
             container.Page(page =>
             {
+                page.MinSize(new PageSize(PageWidthInMillimeters, PageWidthInMillimeters, Unit.Millimetre));
                 page.ContinuousSize(PageWidthInMillimeters, Unit.Millimetre); // Set only the width to 48mm
                 page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Black));
 
@@ -42,12 +43,19 @@ namespace ReceiptPrinter
             });
         }
 
-        public void GeneratePdf(string filePath)
+        public void GeneratePdf()
         {
-            Document.Create(container =>
-            {
-                Compose(container);
-            }).GeneratePdf(filePath);
+            Document.Create(Compose).GeneratePdf($"{FileName}.pdf");
+        }
+
+        public void GenerateTxtFile()
+        {
+            File.WriteAllText($"{FileName}.txt", _content);
+        }
+
+        public void RemoveTextFile()
+        {
+            File.Delete($"{FileName}.txt");
         }
     }
 }
