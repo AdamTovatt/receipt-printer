@@ -30,7 +30,7 @@ namespace ReceiptPrinter
 
                 while (!initialized)
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(refreshDelay);
                     initialized = await InitializeAsync();
                 }
 
@@ -58,6 +58,7 @@ namespace ReceiptPrinter
                     {
                         hasHadAnError = true;
                         await printingManager.PrintAsync(Receipt.CreateReceiptFromText("error-message", $"An error has occurred, the system might be offline: {exception.Message}"));
+                        await Task.Delay(refreshDelay);
                     }
                 }
             }
