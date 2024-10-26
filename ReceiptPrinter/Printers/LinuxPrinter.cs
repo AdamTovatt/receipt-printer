@@ -15,8 +15,6 @@
 
         public async Task PrintAsync(Receipt receipt)
         {
-            logger.LogInformation("Will print");
-
             string printerName = await GetPrinterNameAsync();
 
             receipt.GenerateTxtFile();
@@ -32,10 +30,8 @@
         {
             if (_printerName == null)
             {
-                logger.LogInformation("Starting command for printer name in: " + workingDirectory);
                 Command getNameCommand = new Command("lpstat -d", workingDirectory);
                 _printerName = (await getNameCommand.RunAsync()).Split(':').Last().Trim();
-                logger.LogInformation(_printerName);
             }
 
             return _printerName;
