@@ -34,7 +34,7 @@
             {
                 logger.LogInformation("Starting command for printer name in: " + workingDirectory);
                 Command getNameCommand = new Command("lpstat -d", workingDirectory);
-                _printerName = await getNameCommand.RunAsync();
+                _printerName = (await getNameCommand.RunAsync()).Split(':').Last().Trim();
                 logger.LogInformation(_printerName);
             }
 
