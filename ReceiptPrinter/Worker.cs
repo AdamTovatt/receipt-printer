@@ -61,8 +61,10 @@ namespace ReceiptPrinter
 
             if (errorMessage == null)
             {
+                DateTime time = DateTime.Now;
+
                 stringBuilder.AppendLine("ReceiptPrinter service successfully started and initialized.");
-                stringBuilder.AppendLine(DateTime.Now.ToString());
+                stringBuilder.AppendLine($"{time.ToString("yyyy-MM-dd")} {time.ToShortTimeString()}");
                 stringBuilder.AppendLine($"RefreshDelay: {refreshDelay} ms");
 
                 if (receiptConfig.AllowedCategories == null)

@@ -54,7 +54,7 @@ namespace ReceiptPrinter.ZettleClasses
                 stringBuilder.AppendLine(product.ToString());
 
             DateTime time = DateTime.Parse(Timestamp);
-            stringBuilder.AppendLine($"{time.ToShortDateString()} {time.ToShortTimeString()} {GlobalPurchaseNumber}");
+            stringBuilder.AppendLine($"{time.ToString("yyyy-MM-dd")} {time.ToShortTimeString()} {GlobalPurchaseNumber}");
 
             return stringBuilder.ToString();
         }
