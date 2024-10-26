@@ -48,9 +48,20 @@ namespace ReceiptPrinter
             Document.Create(Compose).GeneratePdf($"{FileName}.pdf");
         }
 
-        public void GenerateTxtFile()
+        public void GenerateTxtFile(int? maxCharactersWide = null)
         {
-            File.WriteAllText($"{FileName}.txt", _content);
+            string? writeContent = null;
+
+            if (maxCharactersWide.HasValue)
+            {
+                writeContent = _content.SplitToLines(maxCharactersWide.Value);
+            }
+            else
+            {
+                writeContent = _content;
+            }
+
+            File.WriteAllText($"{FileName}.txt", writeContent);
         }
 
         public void RemoveTextFile()

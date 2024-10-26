@@ -17,9 +17,9 @@
         {
             string printerName = await GetPrinterNameAsync();
 
-            receipt.GenerateTxtFile();
+            receipt.GenerateTxtFile(26);
 
-            Command printCommand = new Command($"lp -d {printerName} {receipt.FileName}.txt", workingDirectory);
+            Command printCommand = new Command($"lp -d {printerName} -o lpi=8 -o cpi=14 {receipt.FileName}.txt", workingDirectory);
 
             await printCommand.RunAsync();
 
