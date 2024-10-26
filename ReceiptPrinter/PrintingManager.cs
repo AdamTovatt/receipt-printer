@@ -15,17 +15,17 @@ namespace ReceiptPrinter
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 printer = new LinuxPrinter(logger);
             else
-                printer = new WindowsPrinter();
+                printer = new WindowsPrinter(logger);
 
             this.logger = logger;
         }
 
-        public void Print(Receipt receipt)
+        public async Task PrintAsync(Receipt receipt)
         {
             if (printedDocuments.Contains(receipt.FileName))
                 return;
 
-            printer.Print(receipt);
+            await printer.PrintAsync(receipt);
 
             printedDocuments.Add(receipt.FileName);
 

@@ -16,7 +16,7 @@ namespace ReceiptPrinter
         {
             this.logger = logger;
             purchaseManager = new PurchaseManager(zettleConfig, receiptConfig);
-            printingManager = new PrintingManager();
+            printingManager = new PrintingManager(logger);
             this.receiptConfig = receiptConfig;
         }
 
@@ -30,7 +30,7 @@ namespace ReceiptPrinter
                 foreach (Purchase purchase in await purchaseManager.GetNewPurchasesAsync())
                 {
                     Receipt receipt = new Receipt(purchase);
-                    printingManager.Print(receipt);
+                    await printingManager.PrintAsync(receipt);
                 }
 
                 await Task.Delay(refreshDelay, stoppingToken);
@@ -50,7 +50,7 @@ namespace ReceiptPrinter
                 errorMessage = exception.Message;
             }
 
-            printingManager.Print(CreateStartupReceipt(errorMessage));
+            await printingManager.PrintAsync(CreateStartupReceipt(errorMessage));
 
             return true;
         }
@@ -64,7 +64,7 @@ namespace ReceiptPrinter
                 stringBuilder.AppendLine("ReceiptPrinter service successfully started and initialized.");
                 stringBuilder.AppendLine(DateTime.Now.ToString());
                 stringBuilder.AppendLine($"RefreshDelay: {refreshDelay} ms");
-                
+
                 if (receiptConfig.AllowedCategories == null)
                 {
                     stringBuilder.AppendLine("No category filter is specified, will print receipts for all purchase categories.");
