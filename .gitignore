@@ -1,3 +1,5 @@
 .vs
 ReceiptPrinter/bin/*
 ReceiptPrinter/obj/*
+ReceiptPrinterTests/bin/*
+ReceiptPrinterTests/obj/*

@@ -50,11 +50,11 @@ namespace ReceiptPrinter
 
         public void GenerateTxtFile(int? maxCharactersWide = null)
         {
-            string? writeContent = null;
+            string? writeContent;
 
             if (maxCharactersWide.HasValue)
             {
-                writeContent = _content.SplitToLines(maxCharactersWide.Value);
+                writeContent = new FormattedText(_content).ApplyMaxWidth(maxCharactersWide.Value);
             }
             else
             {
