@@ -64,7 +64,7 @@
 
             // Calculate and set MaxWidth, Cpi, and Lpi
             cpi = Math.Clamp(24 - FontSize, 4, 23);
-            maxWidth = (int)Math.Round(PageWidthInMillimeters / 25.4 * cpi);
+            maxWidth = (int)Math.Floor(PageWidthInMillimeters / 25.4 * cpi);
             lpi = (int)Math.Round(cpi / 1.75);
         }
     }

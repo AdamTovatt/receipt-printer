@@ -29,7 +29,7 @@ sudo lpadmin -p mC_Print2 -E -v "usb://Star/MCP21%20(STR-001)?serial=????????" -
 cd ../../../
 lpoptions -d mC_Print2 
 echo $'~~~~~~~~~~~~~~~~~\nThe printer works\n~~~~~~~~~~~~~~~~~\n\n.' > file.txt
-sudo lp -d mC_Print2
+sudo lp -d mC_Print2 file.txt
 
 nmcli connection show
 sudo nmcli connection add type wifi ifname wlan0 con-name "connection_name" ssid "connection_ssid"
