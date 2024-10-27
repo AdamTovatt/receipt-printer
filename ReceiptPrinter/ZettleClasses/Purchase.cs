@@ -31,6 +31,15 @@ namespace ReceiptPrinter.ZettleClasses
 
         [JsonIgnore]
         public string FormattedAmount => $"{Amount / 100.0} {Currency}";
+        
+        [JsonIgnore]
+        public string LocalOrderNumber => (GlobalPurchaseNumber % 100).ToString("D2");
+
+        /// <summary>
+        /// The local time of purchase
+        /// </summary>
+        [JsonIgnore]
+        public DateTime Time => DateTime.Parse(Timestamp).ToLocalTime();
 
         [JsonConstructor]
         public Purchase(string purchaseUuid, int amount, int vatAmount, string currency, string userDisplayName, string timestamp, int globalPurchaseNumber, List<Product> products)

@@ -2,6 +2,7 @@
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using ReceiptPrinter.ZettleClasses;
+using System.Text;
 
 namespace ReceiptPrinter
 {
@@ -20,7 +21,7 @@ namespace ReceiptPrinter
 
         public Receipt(Purchase purchase, ReceiptConfig receiptConfig)
         {
-            TextContent = purchase.ToString();
+            TextContent = GenerateTextContentFromPurchase(purchase, receiptConfig);
             FileName = purchase.PurchaseUuid;
             Config = receiptConfig;
         }
@@ -47,6 +48,29 @@ namespace ReceiptPrinter
         public void GeneratePdf()
         {
             Document.Create(Compose).GeneratePdf($"{FileName}.pdf");
+        }
+
+        private string GenerateTextContentFromPurchase(Purchase purchase, ReceiptConfig config)
+        {
+            StringBuilder result = new StringBuilder();
+
+            result.AppendLine(purchase.LocalOrderNumber.CenterIn(config.TopDecoration.LoopToLength(config.MaxWidth)));
+            result.AppendLine();
+
+            foreach (Product product in purchase.Products)
+            {
+                if (config.IsForCustomer || product.GetIsInAllowedCategory(config.AllowedCategories))
+                    result.AppendLine(product.ToString());
+            }
+
+            if (!config.IsForCustomer)
+            {
+                DateTime time = purchase.Time;
+                result.AppendLine();
+                result.AppendLine($"{time.ToString("yyyy-MM-dd")} {time.ToShortTimeString()} {purchase.GlobalPurchaseNumber}");
+            }
+
+            return result.ToString();
         }
     }
 }

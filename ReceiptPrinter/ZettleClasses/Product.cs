@@ -33,6 +33,17 @@ namespace ReceiptPrinter.ZettleClasses
             Comment = comment;
         }
 
+        public bool GetIsInAllowedCategory(List<string>? allowedCategories)
+        {
+            if (allowedCategories == null)
+                return true;
+
+            if (Category == null)
+                return false;
+
+            return allowedCategories.Contains(Category.Name.ToLower());
+        }
+
         public override string ToString()
         {
             string? result;

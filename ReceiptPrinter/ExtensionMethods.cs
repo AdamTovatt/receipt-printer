@@ -24,70 +24,6 @@
             }
         }
 
-        public static string SplitToLines(this string stringToSplit, int maximumLineLength)
-        {
-            if (string.IsNullOrEmpty(stringToSplit) || maximumLineLength <= 0)
-            {
-                return stringToSplit; // Return the original string if it's null or empty
-            }
-
-            List<string> lines = new List<string>();
-            string[] words = stringToSplit.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            string line = "";
-
-            foreach (string word in words)
-            {
-                // Check if the current word is longer than the maximum line length
-                if (word.Length > maximumLineLength)
-                {
-                    // If so, break the word into smaller chunks
-                    foreach (string chunk in SplitWord(word, maximumLineLength))
-                    {
-                        if (line.Length + chunk.Length + 1 > maximumLineLength)
-                        {
-                            if (!string.IsNullOrEmpty(line)) // Avoid yielding empty lines
-                            {
-                                lines.Add(line); // Add the current line to the list
-                            }
-                            line = chunk; // Start a new line with the chunk
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(line))
-                            {
-                                line += " "; // Add a space if line is not empty
-                            }
-                            line += chunk; // Add the chunk to the current line
-                        }
-                    }
-                }
-                else
-                {
-                    if (line.Length + word.Length + 1 > maximumLineLength)
-                    {
-                        lines.Add(line); // Add the current line to the list
-                        line = word; // Start a new line with the current word
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(line))
-                        {
-                            line += " "; // Add a space if line is not empty
-                        }
-                        line += word; // Add the word to the current line
-                    }
-                }
-            }
-
-            // Add the last line if it's not empty
-            if (!string.IsNullOrEmpty(line))
-            {
-                lines.Add(line);
-            }
-
-            return string.Join(Environment.NewLine, lines); // Join the lines into a single string
-        }
-
         // Helper method to split a long word into chunks
         private static IEnumerable<string> SplitWord(string word, int maxLength)
         {
@@ -95,6 +31,86 @@
             {
                 yield return word.Substring(i, Math.Min(maxLength, word.Length - i));
             }
+        }
+
+        /// <summary>
+        /// Repeats the given string until it reaches the specified length.
+        /// </summary>
+        /// <param name="loopingText">The string to loop.</param>
+        /// <param name="length">The target length.</param>
+        /// <returns>A new string of the specified length, filled by repeating the loopingText.</returns>
+        public static string LoopToLength(this string loopingText, int length) // overly complicated function for looping text
+        {
+            if (length <= 0)
+            {
+                throw new ArgumentException("Length must be greater than zero.", nameof(length));
+            }
+
+            if (string.IsNullOrEmpty(loopingText))
+            {
+                return new string(' ', length); // Return a string of spaces if the input is empty
+            }
+
+            char[] resultArray = new char[length];
+            int currentIndex = 0;
+
+            // Fill the result array by looping through the input string
+            while (currentIndex < length)
+            {
+                foreach (char c in loopingText)
+                {
+                    if (currentIndex < length)
+                    {
+                        resultArray[currentIndex] = c;
+                        currentIndex++;
+                    }
+                    else
+                    {
+                        break; // Break if we've reached the desired length
+                    }
+                }
+            }
+
+            return new string(resultArray);
+        }
+
+        /// <summary>
+        /// Centers the textToCenter inside the textCanvas by replacing characters in the middle with textToCenter,
+        /// adding a white space before and after textToCenter.
+        /// </summary>
+        /// <param name="textToCenter">The text to be centered.</param>
+        /// <param name="textCanvas">The canvas string where the text will be centered.</param>
+        /// <returns>The textCanvas with textToCenter centered within it.</returns>
+        public static string CenterIn(this string textToCenter, string textCanvas)
+        {
+            if (textCanvas == null) throw new ArgumentNullException(nameof(textCanvas));
+            if (textToCenter == null) throw new ArgumentNullException(nameof(textToCenter));
+
+            // Calculate total length needed for textToCenter with spaces
+            string centeredText = $" {textToCenter} ";
+            int canvasLength = textCanvas.Length;
+            int textLength = centeredText.Length;
+
+            if (textLength > canvasLength)
+            {
+                // If the centered text is longer than the canvas, return the centered text as it is
+                return centeredText.Substring(0, canvasLength);
+            }
+
+            // Calculate starting index to replace in textCanvas
+            int startIndex = (canvasLength - textLength) / 2;
+
+            // Create a char array from the textCanvas
+            char[] resultArray = textCanvas.ToCharArray();
+
+            // Replace the middle part of the textCanvas with centeredText
+            for (int i = 0; i < textLength; i++)
+            {
+                resultArray[startIndex + i] = centeredText[i];
+            }
+
+            // Return the modified string
+            return new string(resultArray);
         }
     }
 }

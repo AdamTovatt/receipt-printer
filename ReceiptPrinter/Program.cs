@@ -23,7 +23,8 @@ namespace ReceiptPrinter
                 runtimeArguments.Get<int>("page-width-mm"),
                 runtimeArguments.Get<bool>("is-for-customer"),
                 runtimeArguments.Get<int>("bottom-margin"),
-                runtimeArguments.Get<string>("bottom-decoration"));
+                runtimeArguments.Get<string>("bottom-decoration"),
+                runtimeArguments.Get<string>("top-decoration"));
 
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
             builder.Services.AddSingleton(zettleConfig);
