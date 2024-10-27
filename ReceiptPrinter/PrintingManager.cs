@@ -1,4 +1,5 @@
 ﻿using ReceiptPrinter.Printers;
+using ReceiptPrinter.ZettleClasses;
 using System.Runtime.InteropServices;
 
 namespace ReceiptPrinter
@@ -18,6 +19,11 @@ namespace ReceiptPrinter
                 printer = new WindowsPrinter(logger);
 
             this.logger = logger;
+        }
+
+        public async Task PrintAsync(string fileName, string text, ReceiptConfig receiptConfig)
+        {
+            await PrintAsync(Receipt.CreateReceiptFromText(fileName, text, receiptConfig));
         }
 
         public async Task PrintAsync(Receipt receipt)

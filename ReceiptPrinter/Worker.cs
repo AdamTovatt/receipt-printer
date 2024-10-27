@@ -26,6 +26,9 @@ namespace ReceiptPrinter
 
             try
             {
+                await printingManager.PrintAsync("first-startup-message", "System is starting...", receiptConfig);
+                await Task.Delay(5000);
+
                 bool initialized = await InitializeAsync();
 
                 while (!initialized)
@@ -40,12 +43,12 @@ namespace ReceiptPrinter
                     {
                         foreach (Purchase purchase in await purchaseManager.GetNewPurchasesAsync())
                         {
-                            Receipt receipt = new Receipt(purchase);
+                            Receipt receipt = new Receipt(purchase, receiptConfig);
                             await printingManager.PrintAsync(receipt);
                         }
 
                         if (hasHadAnError)
-                            await printingManager.PrintAsync(Receipt.CreateReceiptFromText("success-message", "The system is back online"));
+                            await printingManager.PrintAsync("success-message", "The system is back online", receiptConfig);
 
                         printingManager.RemovePrints("start-error-info"); // remove error message prints
                         printingManager.RemovePrints("error-message"); // so they will be printed again if a new error occurrs
@@ -57,14 +60,14 @@ namespace ReceiptPrinter
                     catch (Exception exception)
                     {
                         hasHadAnError = true;
-                        await printingManager.PrintAsync(Receipt.CreateReceiptFromText("error-message", $"An error has occurred, the system might be offline: {exception.Message}"));
+                        await printingManager.PrintAsync("error-message", $"An error has occurred, the system might be offline: {exception.Message}", receiptConfig);
                         await Task.Delay(refreshDelay);
                     }
                 }
             }
             catch (Exception exception)
             {
-                await printingManager.PrintAsync(Receipt.CreateReceiptFromText("fatal-error-message", $"A fatal error has occurred and the system needs to be restarted: {exception.Message}"));
+                await printingManager.PrintAsync("fatal-error-message", $"A fatal error has occurred and the system needs to be restarted: {exception.Message}", receiptConfig);
             }
         }
 
@@ -120,7 +123,7 @@ namespace ReceiptPrinter
                 stringBuilder.AppendLine($"Error:\n{errorMessage}");
             }
 
-            return Receipt.CreateReceiptFromText(errorMessage == null ? "startup-info" : "start-error-info", stringBuilder.ToString());
+            return Receipt.CreateReceiptFromText(errorMessage == null ? "startup-info" : "start-error-info", stringBuilder.ToString(), receiptConfig);
         }
     }
 }

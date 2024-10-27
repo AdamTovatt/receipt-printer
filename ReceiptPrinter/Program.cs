@@ -9,14 +9,21 @@ namespace ReceiptPrinter
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
-            if (args.Length < 2)
-            {
-                Console.WriteLine("Missing command line arguments for client id and client secret.\nUsage: ReceiptPrinter <client_id> <client_secret>");
-                return;
-            }
+            RuntimeArguments runtimeArguments = new RuntimeArguments(args);
+            runtimeArguments.Require("client-id", "client-secret");
 
-            ZettleConfig zettleConfig = new ZettleConfig(args[0], args[1]);
-            ReceiptConfig receiptConfig = new ReceiptConfig(args.SafeGetElementAtIndex(2));
+            ZettleConfig zettleConfig = new ZettleConfig(
+                runtimeArguments.Get<string>("client-id")!,
+                runtimeArguments.Get<string>("client-secret")!);
+
+
+            ReceiptConfig receiptConfig = new ReceiptConfig(
+                runtimeArguments.Get<string>("allowed-categories"),
+                runtimeArguments.Get<int>("font-size"),
+                runtimeArguments.Get<int>("page-width-mm"),
+                runtimeArguments.Get<bool>("is-for-customer"),
+                runtimeArguments.Get<int>("bottom-margin"),
+                runtimeArguments.Get<string>("bottom-decoration"));
 
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
             builder.Services.AddSingleton(zettleConfig);

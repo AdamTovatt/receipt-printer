@@ -1,0 +1,84 @@
+git clone https://github.com/AdamTovatt/receipt-printer.git
+cd receipt-printer
+dotnet publish -c Release -r linux-arm64
+
+sudo apt-get update
+sudo apt-get install cups -y
+sudo usermod -a -G lpadmin pi
+
+cd ReceiptPrinter/Resources
+sudo cp Star_CUPS_Driver-3.16.0_linux.tar.gz ../../../Star_CUPS_Driver-3.16.0_linux.tar.gz
+cd ../../../
+tar xzvf Star_CUPS_Driver-3.16.0_linux.tar.gz
+sudo rm Star_CUPS_Driver-3.16.0_linux.tar.gz
+cd Star_CUPS_Driver-3.16.0_linux/SourceCode
+tar xzvf Star_CUPS_Driver-src-3.16.0.tar.gz
+cd Star_CUPS_Driver/
+
+sudo apt-get install gcc
+sudo apt-get install libcups2-dev -y
+sudo apt-get install libcupsimage2-dev
+sudo make
+sudo make install
+sudo systemctl start cups
+sudo systemctl enable cups
+
+lsusb
+sudo lpinfo -v
+sudo lpadmin -p mC_Print2 -E -v "usb://Star/MCP21%20(STR-001)?serial=????????" -m /star/mcp21.ppd
+cd ../../../
+lpoptions -d mC_Print2 
+echo $'~~~~~~~~~~~~~~~~~\nThe printer works\n~~~~~~~~~~~~~~~~~\n\n.' > file.txt
+sudo lp -d mC_Print2
+
+nmcli connection show
+sudo nmcli connection add type wifi ifname wlan0 con-name "connection_name" ssid "connection_ssid"
+sudo nmcli connection modify "connection_name" wifi-sec.key-mgmt wpa-psk
+sudo nmcli connection modify "connection_name" wifi-sec.psk "password"
+sudo nmcli connection up "connection_name" 
+
+sudo nano /lib/systemd/system/receipt-printer.service
+sudo systemctl enable receipt-printer
+sudo systemctl start receipt-printer
+
+---------------- unit file ------------------------
+
+[Unit]
+Description=Receipt Printer
+After=nginx.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/sakur/receipt-printer
+ExecStart=/usr/local/bin/dotnet /home/pi/sakur/receipt-printer/ReceiptPrinter/bin/Release/net8.0/linux-arm64/publish/ReceiptPrinter.dll clientId clientSecret category1,category2
+RestartSec=5
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target
+
+---------------- /unit file -----------------------
+
+---------------- auto updater unit file -----------
+
+[Unit]
+Description=Receipt Printer Auto Update
+After=nginx.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/sakur/distributed-storage-api
+ExecStart=/usr/local/bin/dotnet /home/pi/sakur/distributed-storage-api/AutoUpdater/bin/Release/net8.0/linux-arm64/AutoUpdater.dll --script-path /home/pi/sakur/receipt-printer-update-script.txt --logging true
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+---------------- /auto updater unit file -----------
+
+sudo nano /lib/systemd/system/auto-update-receipt-printer.service
+sudo systemctl enable auto-update-receipt-printer.service
+sudo systemctl start auto-update-receipt-printer.service

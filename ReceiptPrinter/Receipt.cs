@@ -7,24 +7,25 @@ namespace ReceiptPrinter
 {
     public class Receipt : IDocument
     {
-        private readonly string _content;
-        private const float PageWidthInMillimeters = 48f;
-
+        public ReceiptConfig Config { get; set; }
+        public string TextContent { get; private set; }
         public string FileName { get; private set; }
 
-        private Receipt(string fileName, string content)
+        private Receipt(string fileName, string content, ReceiptConfig receiptConfig)
         {
-            _content = content;
+            TextContent = content;
             FileName = fileName;
+            Config = receiptConfig;
         }
 
-        public Receipt(Purchase purchase)
+        public Receipt(Purchase purchase, ReceiptConfig receiptConfig)
         {
-            _content = purchase.ToString();
+            TextContent = purchase.ToString();
             FileName = purchase.PurchaseUuid;
+            Config = receiptConfig;
         }
 
-        public static Receipt CreateReceiptFromText(string fileName, string content) => new Receipt(fileName, content);
+        public static Receipt CreateReceiptFromText(string fileName, string content, ReceiptConfig config) => new Receipt(fileName, content, config);
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
 
@@ -32,13 +33,13 @@ namespace ReceiptPrinter
         {
             container.Page(page =>
             {
-                page.MinSize(new PageSize(PageWidthInMillimeters, PageWidthInMillimeters, Unit.Millimetre));
-                page.ContinuousSize(PageWidthInMillimeters, Unit.Millimetre); // Set only the width to 48mm
-                page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Black));
+                page.MinSize(new PageSize(Config.PageWidthInMillimeters, Config.PageWidthInMillimeters, Unit.Millimetre));
+                page.ContinuousSize(Config.PageWidthInMillimeters, Unit.Millimetre); // Set only the width to 48mm
+                page.DefaultTextStyle(x => x.FontSize(Config.FontSize).FontColor(Colors.Black));
 
                 page.Content().Column(column =>
                 {
-                    column.Item().Text(_content).FontSize(10);
+                    column.Item().Text(TextContent).FontSize(Config.FontSize);
                 });
             });
         }
@@ -46,27 +47,6 @@ namespace ReceiptPrinter
         public void GeneratePdf()
         {
             Document.Create(Compose).GeneratePdf($"{FileName}.pdf");
-        }
-
-        public void GenerateTxtFile(int? maxCharactersWide = null)
-        {
-            string? writeContent;
-
-            if (maxCharactersWide.HasValue)
-            {
-                writeContent = new FormattedText(_content).ApplyMaxWidth(maxCharactersWide.Value);
-            }
-            else
-            {
-                writeContent = _content;
-            }
-
-            File.WriteAllText($"{FileName}.txt", writeContent);
-        }
-
-        public void RemoveTextFile()
-        {
-            File.Delete($"{FileName}.txt");
         }
     }
 }
