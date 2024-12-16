@@ -1,35 +1,34 @@
-git clone https://github.com/AdamTovatt/receipt-printer.git
-cd receipt-printer
-dotnet publish -c Release -r linux-arm64
+sudo apt update && sudo apt install git -y;
+curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version latest --verbose;
+echo 'export DOTNET_ROOT=$HOME/.dotnet' >> ~/.bashrc;
+echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc;
 
-sudo apt-get update
-sudo apt-get install cups -y
-sudo usermod -a -G lpadmin pi
+sudo reboot;
 
-cd ReceiptPrinter/Resources
-sudo cp Star_CUPS_Driver-3.16.0_linux.tar.gz ../../../Star_CUPS_Driver-3.16.0_linux.tar.gz
-cd ../../../
-tar xzvf Star_CUPS_Driver-3.16.0_linux.tar.gz
-sudo rm Star_CUPS_Driver-3.16.0_linux.tar.gz
-cd Star_CUPS_Driver-3.16.0_linux/SourceCode
-tar xzvf Star_CUPS_Driver-src-3.16.0.tar.gz
-cd Star_CUPS_Driver/
+git clone https://github.com/AdamTovatt/receipt-printer.git && cd receipt-printer && dotnet publish -c Release -r linux-arm64;
 
-sudo apt-get install gcc
-sudo apt-get install libcups2-dev -y
-sudo apt-get install libcupsimage2-dev
-sudo make
-sudo make install
-sudo systemctl start cups
-sudo systemctl enable cups
+sudo apt-get update && sudo apt-get install cups -y && sudo usermod -a -G lpadmin pi;
 
-lsusb
-sudo lpinfo -v
-sudo lpadmin -p mC_Print2 -E -v "usb://Star/MCP21%20(STR-001)?serial=????????" -m /star/mcp21.ppd
-cd ../../../
-lpoptions -d mC_Print2 
-echo $'~~~~~~~~~~~~~~~~~\nThe printer works\n~~~~~~~~~~~~~~~~~\n\n.' > file.txt
-sudo lp -d mC_Print2 file.txt
+cd ReceiptPrinter/Resources && sudo cp Star_CUPS_Driver-3.16.0_linux.tar.gz ../../../Star_CUPS_Driver-3.16.0_linux.tar.gz && cd ../../../;
+tar xzvf Star_CUPS_Driver-3.16.0_linux.tar.gz && sudo rm Star_CUPS_Driver-3.16.0_linux.tar.gz;
+cd Star_CUPS_Driver-3.16.0_linux/SourceCode && tar xzvf Star_CUPS_Driver-src-3.16.0.tar.gz && cd Star_CUPS_Driver/;
+
+sudo apt-get install gcc && \
+sudo apt-get install libcups2-dev -y && \
+sudo apt-get install libcupsimage2-dev && \
+sudo make && \
+sudo make install && \
+sudo systemctl start cups && \
+sudo systemctl enable cups;
+
+lsusb;
+sudo lpadmin -p mC_Print2 -E -v "usb://Star/MCP21%20(STR-001)?serial=$(sudo lpinfo -v | grep -oP 'usb://Star/[^?]*\?serial=\K[0-9]+')" -m /star/mcp21.ppd && \
+cd ../../../ && \
+lpoptions -d mC_Print2;
+
+echo $'~~~~~~~~~~~~~~~~~\nThe printer works\n~~~~~~~~~~~~~~~~~\n\n.' > file.txt && sudo lp -d mC_Print2 file.txt && rm file.txt;
+
+git clone https://github.com/AdamTovatt/auto-updater.git && cd auto-updater && dotnet publish -c Release -r linux-arm64 && cd ..;
 
 nmcli connection show
 sudo nmcli connection add type wifi ifname wlan0 con-name "connection_name" ssid "connection_ssid"
