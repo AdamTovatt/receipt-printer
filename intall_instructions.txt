@@ -1,8 +1,7 @@
-sudo apt update && sudo apt install git -y;
-curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version latest --verbose;
-echo 'export DOTNET_ROOT=$HOME/.dotnet' >> ~/.bashrc;
-echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc;
-
+sudo apt update && sudo apt install git -y && \
+curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version latest --verbose && \
+echo 'export DOTNET_ROOT=$HOME/.dotnet' >> ~/.bashrc && \
+echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc && \
 sudo reboot;
 
 git clone https://github.com/AdamTovatt/receipt-printer.git && cd receipt-printer && dotnet publish -c Release -r linux-arm64;
