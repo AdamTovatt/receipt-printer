@@ -16,7 +16,6 @@ namespace ReceiptPrinter
                 runtimeArguments.Get<string>("client-id")!,
                 runtimeArguments.Get<string>("client-secret")!);
 
-
             ReceiptConfig receiptConfig = new ReceiptConfig(
                 runtimeArguments.Get<string>("allowed-categories"),
                 runtimeArguments.Get<int>("font-size"),

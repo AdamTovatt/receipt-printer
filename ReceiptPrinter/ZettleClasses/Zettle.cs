@@ -16,7 +16,7 @@ namespace ReceiptPrinter.ZettleClasses
             _clientSecret = config.ClientSecret;
 
             http = new HttpClient();
-            http.Timeout = TimeSpan.FromSeconds(10);
+            http.Timeout = TimeSpan.FromSeconds(30);
         }
 
         public async Task<List<Purchase>> GetPurchasesAsync(int maxResults = 100, bool descending = true, List<string>? allowedCategoryNames = null)
